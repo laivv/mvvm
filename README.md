@@ -5,19 +5,36 @@
 ## QuickStart
   html
 ```html
-<div>
-  姓名{{name}}
-  年龄{{age}}
-  其它{{other.sex}}
-</div>
+    <div>
+        <div>
+          用户账号<input v-model="form.userName"> 
+        </div>
+        <div>
+          字体大小<input v-model="form.fontSize">
+        </div>
+        <div style="font-size:{{form.fontSize}}px">
+          用户名{{form.userName}}
+        </div>
+        <div>
+          <button @click="clearForm">清空</button>
+        </div>
+    </div>
 ```
 javascript
 ```javascript
- var vm = MVVM({
-      name:"lingluo",
-      age:30,
-      other:{sex:"男"},
-  });
+   new MVVM({
+        data:{
+          form:{
+            userName:'lingluo',
+            fontSize:30
+          }
+        },
+        methods:{
+          clearForm(){
+            this.form.userName = ''
+          }
+        }
+    });
 ```
 
 ### development

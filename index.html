@@ -13,64 +13,39 @@
   </style>
 </head>
 <body>
-  <div>
     <div>
-      <label for="">姓名</label>
-      <input type="text" v-model="name" class="item {{name === 'lingluo'? '123':'456'}}">
-    </div>
-    <div>
-        <label for="">年龄</label>
-      <input type="text" v-model="age">
-    </div>
-    <div>
-      <label for="">字体颜色</label>
-      <input type="text" v-model="style.color">
-    </div>
-    <div>
-        <label for="">背景颜色</label>
-        <input type="text" v-model="style.bgcolor">
-      </div>
-    <div>
-      <label for="">字体大小</label>
-      <input type="text" v-model="style.size">
-    </div>
-    <div>
-        <select v-model="enable">
-            <option value="1">启用</option>
-            <option value="0">禁用</option>
-          </select>
-    </div>
-    
-    <div style="transition:all 0.5s;color:{{style.color}};font-size:{{style.size}}px;width:100%;height:200px;background:{{style.bgcolor}}">
-          姓名{{name}}
-          年龄{{age}}
-          其它{{other.sex}}
-    </div>
-  </div>
-    <div>
-      <button id="button" class="{{enable ? 'enable' : 'disable'}}">点我</button>
+        <div>
+          用户账号<input v-model="form.userName"> 
+        </div>
+        <div>
+          字体大小<input v-model="form.fontSize">
+        </div>
+        <div style="font-size:{{form.fontSize}}px">
+          用户名{{form.userName}}
+        </div>
+        <div>
+          <button @click="clearForm">清空</button>
+        </div>
     </div>
   <script>
-    (function(){
+    // (function(){
 
-      var vm = MVVM({
-        name:"lingluo",
-        age:30,
-        other:{sex:"男"},
-        style:{color:'red',size:'30',bgcolor:'#ccc'},
-        enable:0
+      new MVVM({
+        data:{
+          form:{
+            userName:'lingluo',
+            fontSize:30
+          }
+        },
+        methods:{
+          clearForm(){
+            this.form.userName = ''
+          }
+        }
       });
 
-      function test(){
-        var color = ['red','green','blue','yellow'];
-        var size = ['20','30','40','50','100',300];
-        vm.style.color = color[Math.floor(Math.random() * (color.length -1))];
-        vm.style.size = size[Math.floor(Math.random() * (size.length -1))];
-      }
 
-      document.getElementById('button').addEventListener('click',test)
-
-    })()
+    // })()
   </script>
 </body>
 </html>
