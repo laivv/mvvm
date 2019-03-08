@@ -6,7 +6,7 @@
 import observe from './observe';
 import * as DOM from './dom';
 import { type } from './utils';
-import { define } from './utils';
+import { proxy } from './utils';
 
 function MVVM(option) {
 	this.$el = option.el ? document.querySelector(option.el) || document : document;
@@ -52,7 +52,7 @@ MVVM.prototype.$resolveEvent = function() {
 						this.$methods[invoke].call(this, e);
 					});
 				} else {
-					throw ReferenceError(`[MVVM warning]: ${invoke} is not defined.`);
+					throw new ReferenceError(`[MVVM warning]: ${invoke} is not defined.`);
 				}
 			}
 		}
@@ -60,16 +60,8 @@ MVVM.prototype.$resolveEvent = function() {
 };
 
 MVVM.prototype.$proxy = function() {
-	for (let key in this.$data) {
-		if (this.$data.hasOwnProperty(key)) {
-			define(this, this.$data, key);
-		}
-	}
-	for (let key in this.$methods) {
-		if (this.$methods.hasOwnProperty(key)) {
-			define(this, this.$methods, key);
-		}
-	}
+	proxy(this.$data, this);
+	proxy(this.$methods, this);
 };
 
 if (typeof window === 'object') {
