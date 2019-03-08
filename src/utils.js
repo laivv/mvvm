@@ -5,13 +5,17 @@ export const type = obj => {
     .toLowerCase()
 }
 
-export function define(obj,target, key) {
-  Object.defineProperty(obj, key, {
-    get() {
-      return target[key]
-    },
-    set(key) {
-      target[key] = val
+export function proxy(source, target) {
+  for (let key in source) {
+    if (source.hasOwnProperty(key)) {
+      Object.defineProperty(target, key, {
+        get() {
+          return source[key]
+        },
+        set(key) {
+          source[key] = val
+        }
+      })
     }
-  })
+  }
 }
