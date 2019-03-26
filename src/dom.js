@@ -1,6 +1,8 @@
+import { type } from './utils'
+
 const BIND_REGULAR = /\{\{[^\}]+\}\}/g
 const SYNC_DIRECTIVE = 'v-model'
-const FORM_WIDGET = `input[${SYNC_DIRECTIVE}],textarea[${SYNC_DIRECTIVE}],select[${SYNC_DIRECTIVE}]`
+const FORM_WIDGET = ['input','textarea','select'].join(`[${SYNC_DIRECTIVE}],`)
 const EVENT_REGULAR = /^@(\w+)$/
 
 function textNodeWalk(node) {
@@ -63,6 +65,24 @@ export function DOMWatcher(directiveNodes, data, callback) {
       callback && callback()
     })
   })
+}
+
+export function EventWatcher(eventNodes,methods,context){
+  eventNodes.forEach(node => {
+		const events = node.__events
+		for (let ev in events) {
+			if (events.hasOwnProperty(ev)) {
+				const invoke = events[ev]
+				if (type(methods[invoke]) === 'function') {
+					node.addEventListener(ev, e => {
+						methods[invoke].call(context, e)
+					})
+				} else {
+					throw new ReferenceError(`[MVVM warning]: ${invoke} is not defined.`)
+				}
+			}
+		}
+	})
 }
 
 export function getTextNodes(root) {

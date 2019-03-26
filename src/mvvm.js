@@ -5,31 +5,19 @@
 
 import observe from './observe';
 import * as DOM from './dom';
-import { type } from './utils';
 import { proxy } from './utils';
+import { type, warn } from './utils';
 
 function MVVM(option) {
-	this.$el = option.el ? document.querySelector(option.el) || document : document;
-	this.$data = option.data;
-	this.$methods = option.methods || {};
-	this.$options = {};
-	this.$init();
+	initHooks(option, this);
+	callHook('beforeCreate', this);
+	initElement(option, this);
+	initData(option, this);
+	initMethod(option, this);
+	init.call(this);
+	callHook('mounted', this);
 	this.render();
 }
-
-MVVM.prototype.$init = function() {
-	if (this.$options._init) return;
-	this.$options._init = true;
-	this.$options.directiveNodes = DOM.getDirectiveNodes(this.$el);
-	this.$options.textNodes = DOM.getTextNodes(this.$el);
-	this.$options.attrNodes = DOM.getAttributesNodes(this.$el);
-	observe(this.$data, this.render.bind(this));
-	DOM.DOMWatcher(this.$options.directiveNodes, this.$data, () => {
-		this.render();
-	});
-	this.$resolveEvent();
-	this.$proxy();
-};
 
 MVVM.prototype.render = function() {
 	const { directiveNodes, textNodes, attrNodes } = this.$options;
@@ -41,28 +29,56 @@ MVVM.prototype.render = function() {
 	DOM.renderer(nodes, this.$data);
 };
 
-MVVM.prototype.$resolveEvent = function() {
-	DOM.getEventNodes(this.$el).forEach(node => {
-		const events = node.__events;
-		for (let ev in events) {
-			if (events.hasOwnProperty(ev)) {
-				const invoke = events[ev];
-				if (type(this.$methods[invoke]) === 'function') {
-					node.addEventListener(ev, e => {
-						this.$methods[invoke].call(this, e);
-					});
-				} else {
-					throw new ReferenceError(`[MVVM warning]: ${invoke} is not defined.`);
-				}
+function initElement(option, context) {
+	context.$el = option.el ? document.querySelector(option.el) || document : document;
+}
+
+function initData(option, context) {
+	if (type(option.data) === 'function') {
+		context.$data = option.data();
+	} else if (type(option.data) === 'object') {
+		context.$data = option.data;
+		warn('[MVVM] warning: ' + 'data应该是一个function');
+	} else {
+		throw new Error('data是必须的');
+	}
+}
+
+function initMethod(option, context) {
+	context.$methods = option.methods || {};
+}
+
+function initHooks(option, context) {
+	context.$options = {};
+	context.$options.hooks = {};
+	['beforeCreate', 'mounted'].forEach(name => {
+		const hook = option[name];
+		if (hook) {
+			if (type(hook) === 'function') {
+				context.$options.hooks[name] = option[name];
+			} else {
+				warn('[MVVM] warning: ' + name + '接收类型为function');
 			}
 		}
 	});
-};
+}
 
-MVVM.prototype.$proxy = function() {
+function callHook(hookName, context) {
+	const hook = context.$options.hooks[hookName];
+	hook && hook.call(context);
+}
+
+function init() {
+	this.$options.directiveNodes = DOM.getDirectiveNodes(this.$el);
+	this.$options.textNodes = DOM.getTextNodes(this.$el);
+	this.$options.attrNodes = DOM.getAttributesNodes(this.$el);
+	this.$options.eventNodes = DOM.getEventNodes(this.$el);
+	observe(this.$data, this.render.bind(this));
+	DOM.DOMWatcher(this.$options.directiveNodes, this.$data);
+	DOM.EventWatcher(this.$options.eventNodes, this.$methods, this);
 	proxy(this.$data, this);
 	proxy(this.$methods, this);
-};
+}
 
 if (typeof window === 'object') {
 	window.MVVM = MVVM;

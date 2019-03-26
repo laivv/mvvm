@@ -29,14 +29,21 @@
         </div>
     </div>
   <script>
-    // (function(){
 
      var vm = new MVVM({
-        data:{
-          form:{
-            userName:'lingluo',
-            fontSize:30
+        data(){
+          return {
+            form:{
+              userName:'lingluo',
+              fontSize:30
+            }
           }
+        },
+        beforeCreate() {
+          console.log('beforeCreated')
+        },
+        mounted(){
+          console.log('mounted')
         },
         methods:{
           clearForm(){
@@ -44,9 +51,6 @@
           }
         }
       });
-
-
-    // })()
   </script>
 </body>
 </html>
