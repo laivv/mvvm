@@ -22,19 +22,27 @@
 ```
 javascript
 ```javascript
-   new MVVM({
-        data:{
-          form:{
-            userName:'lingluo',
-            fontSize:30
+      new MVVM({
+        data(){
+          return {
+            form:{
+              userName:'lingluo',
+              fontSize:30
+            }
           }
+        },
+        beforeCreate() {
+          console.log('beforeCreated')
+        },
+        mounted(){
+          console.log('mounted')
         },
         methods:{
           clearForm(){
             this.form.userName = ''
           }
         }
-    });
+      });
 ```
 
 ### development

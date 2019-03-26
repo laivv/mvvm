@@ -19,3 +19,7 @@ export function proxy(source, target) {
     }
   }
 }
+
+export function warn(message){
+  console.warn(message)
+}
